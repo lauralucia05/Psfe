@@ -1,0 +1,294 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  name      String
+  role      AdminRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Admin can send messages
+  sentMessages     Message[] @relation("AdminSender")
+  receivedMessages Message[] @relation("AdminReceiver")
+}
+
+model Patient {
+  id          String    @id @default(cuid())
+  username    String    @unique
+  email       String    @unique
+  password    String
+  name        String
+  surname     String
+  phone       String?   @unique
+  address     String?
+  img         String?
+  dateOfBirth DateTime?
+  sex         UserSex?
+  bloodType   String?
+  
+  // Medical info
+  emergencyContact String?
+  medicalHistory   String?
+  currentMedications String?
+  allergies        String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  appointments     Appointment[]
+  sentMessages     Message[]     @relation("PatientSender")
+  receivedMessages Message[]     @relation("PatientReceiver")
+  payments         Payment[]
+  referrals        Referral[]
+  reviews          Review[]
+}
+
+model Doctor {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  name        String
+  surname     String
+  phone       String?  @unique
+  address     String?
+  img         String?
+  dateOfBirth DateTime?
+  sex         UserSex?
+  
+  // Professional info
+  licenseNumber    String?   @unique
+  specialization   String[]
+  education        String?
+  experience       String?
+  credentials      String?
+  introVideoUrl    String?
+  biography        String?
+  consultationFee  Float?
+  
+  // Availability
+  isAvailable      Boolean   @default(true)
+  workingHours     Json? // Store flexible working hours
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  appointments     Appointment[]
+  sentMessages     Message[]     @relation("DoctorSender")
+  receivedMessages Message[]     @relation("DoctorReceiver")
+  availabilities   Availability[]
+  payments         Payment[]
+  reviews          Review[]
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  startTime   DateTime
+  endTime     DateTime
+  duration    Int      @default(60) // in minutes
+  status      AppointmentStatus @default(SCHEDULED)
+  type        AppointmentType   @default(CONSULTATION)
+  notes       String?
+  
+  // Referral info
+  isFirstVisit    Boolean @default(false)
+  referralRequired Boolean @default(true)
+  
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  
+  referralId String?
+  referral   Referral? @relation(fields: [referralId], references: [id])
+  
+  payment Payment?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([date])
+}
+
+model Availability {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  startTime DateTime
+  endTime   DateTime
+  isBooked  Boolean  @default(false)
+  
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([doctorId, date])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  isRead    Boolean  @default(false)
+  
+  senderType   UserType
+  receiverType UserType
+  
+  // Patient as sender/receiver
+  patientSenderId   String?
+  patientSender     Patient? @relation("PatientSender", fields: [patientSenderId], references: [id], onDelete: Cascade)
+  patientReceiverId String?
+  patientReceiver   Patient? @relation("PatientReceiver", fields: [patientReceiverId], references: [id], onDelete: Cascade)
+  
+  // Doctor as sender/receiver
+  doctorSenderId   String?
+  doctorSender     Doctor? @relation("DoctorSender", fields: [doctorSenderId], references: [id], onDelete: Cascade)
+  doctorReceiverId String?
+  doctorReceiver   Doctor? @relation("DoctorReceiver", fields: [doctorReceiverId], references: [id], onDelete: Cascade)
+  
+  // Admin as sender/receiver
+  adminSenderId   String?
+  adminSender     Admin? @relation("AdminSender", fields: [adminSenderId], references: [id], onDelete: Cascade)
+  adminReceiverId String?
+  adminReceiver   Admin? @relation("AdminReceiver", fields: [adminReceiverId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([patientSenderId])
+  @@index([doctorSenderId])
+  @@index([adminSenderId])
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  amount        Float
+  currency      String        @default("USD")
+  status        PaymentStatus @default(PENDING)
+  paymentMethod String?
+  transactionId String?       @unique
+  
+  // Platform fee
+  platformFee   Float?
+  doctorPayout  Float?
+  
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  
+  appointmentId Int    @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([patientId])
+  @@index([doctorId])
+}
+
+model Referral {
+  id              Int      @id @default(autoincrement())
+  referringDoctor String
+  reason          String
+  medicalHistory  String?
+  urgency         ReferralUrgency @default(ROUTINE)
+  notes           String?
+  
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  appointments Appointment[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([patientId])
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  rating  Int    // 1-5 stars
+  comment String?
+  
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([doctorId])
+  @@index([patientId])
+}
+
+// Enums
+enum UserSex {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum UserType {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum AppointmentType {
+  CONSULTATION
+  FOLLOW_UP
+  SECOND_OPINION
+  THERAPY_SESSION
+  EMERGENCY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum ReferralUrgency {
+  ROUTINE
+  URGENT
+  EMERGENCY
+}

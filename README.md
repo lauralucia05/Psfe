@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🏥 Psyencia - Full-Stack Healthcare Platform
 
 A comprehensive healthcare platform built with React, Node.js, and MongoDB. Features include doctor appointments, patient management, admin dashboard, and payment integration.
@@ -228,3 +229,6 @@ For support and questions:
 ---
 
 **Built with ❤️ for the healthcare community**
+=======
+# Psfe
+>>>>>>> 1e362e321b1331f9a292cdf3c2d0edcd331ce8ad

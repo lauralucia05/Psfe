@@ -1,0 +1,11 @@
+services:
+  - type: static
+    name: psyencia-frontend
+    env: static
+    buildCommand: npm ci --prefix frontend && npm run build --prefix frontend
+    publishDir: frontend/dist
+    routes:
+      - type: rewrite
+        source: /**
+        destination: /index.html
+

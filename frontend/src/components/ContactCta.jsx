@@ -123,7 +123,7 @@ const ContactCta = () => {
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Psyencia Location - Brisbane, QLD, Australia"
+                title="Psyencia Location - Sydney, NSW, Australia"
               ></iframe>
             </div>
           </div>
@@ -134,8 +134,8 @@ const ContactCta = () => {
               size="lg" 
               className="shadow-lg"
             >
-              <Calendar className="mr-2 h-5 w-5" />
-              Book Your Consultation
+              <Mail className="mr-2 h-5 w-5" />
+              Contact us
             </Button>
           </div>
         </div>

@@ -33,7 +33,7 @@ const Contact = () => {
                 onClick={scrollToHalaxyForm}
                 className="bg-white text-blue-600 px-8 py-4 rounded-full font-medium hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
               >
-                <span>Book Consultation</span>
+                <span>Contact us</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -132,7 +132,7 @@ const Contact = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-light text-slate-800 mb-6">
-              Book Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 font-medium">Consultation</span>
+              Contact <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 font-medium">us</span>
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-8">
               Ready to start your mental health journey? Book a consultation with our expert team through our secure online platform.
@@ -188,7 +188,7 @@ const Contact = () => {
   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">                     
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />                   
   </svg>                   
-  <span>Book Consultation Now</span>                 
+  <span>Contact us</span>                 
 </button>
                 <p className="text-sm text-slate-500 mt-4">
                   You'll be redirected to our secure Halaxy booking platform
